@@ -19,7 +19,7 @@ AddStateBagChangeHandler('carryBag', ('player:%s'):format(cache.serverId), funct
     currentBag = value
 
     local bagInfo = Config.Bags[value]
-    if not bagInfo then return print('no bag found') end
+    if not bagInfo then return end
 
     local gender = IsPedModel(cache.ped, 'mp_f_freemode_01') and 'female' or 'male'
 
