@@ -4,7 +4,7 @@ Config.AllowMultipleBags = false
 Config.OpenDuration = 4000
 
 Config.Bags = {
-    backpack--[[ Item name ]] = {
+    ['backpack']--[[ Item name ]] = {
         clothing = {
             MaleDrawableId = 82,
             MaleTextureId = 0,
