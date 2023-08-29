@@ -15,11 +15,11 @@ local function useBackpack(event, _, inventory, slot, _)
     if not existingStashes[backpack.metadata.bagId] then
         local bag = Config.Bags[backpack.name]
 
-        ox_inventory:RegisterStash(backpack.metadata.bagId, 'Bag', bag.slots, bag.maxWeight)
+        ox_inventory:RegisterStash(('backpack_'):format(backpack.metadata.bagId), 'Bag', bag.slots, bag.maxWeight)
         existingStashes[backpack.metadata.bagId] = true
     end
 
-    TriggerClientEvent('ox_inventory:openInventory', inventory.id, 'stash', backpack.metadata.bagId)
+    TriggerClientEvent('ox_inventory:openInventory', inventory.id, 'stash', ('backpack_'):format(backpack.metadata.bagId))
 end
 exports('useBackpack', useBackpack)
 
@@ -56,6 +56,8 @@ AddEventHandler('onServerResourceStart', function(resourceName)
         if payload.action ~= 'move' then return end
 
         if payload.fromType == 'player' then
+            if string.find(payload.toInventory, 'backpack_') then return false end
+
             local bagCount = ox_inventory:Search(source, 'count', backpacks) - 1
             if bagCount < 1 then Player(source).state.carryBag = false end
         end
