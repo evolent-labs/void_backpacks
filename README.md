@@ -20,3 +20,4 @@
 * Add ensure `void_backpacks` to your server.cfg
 
 ## [Video Preview](https://streamable.com/t3xvos)
+## [Discord](https://discord.gg/J6wYuXyZUf)
