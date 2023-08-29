@@ -1,5 +1,3 @@
-lib.versionCheck('void_development/void_backpacks')
-
 local Config = require 'config'
 local existingStashes = {}
 
