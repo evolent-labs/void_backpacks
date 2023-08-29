@@ -15,11 +15,11 @@ local function useBackpack(event, _, inventory, slot, _)
     if not existingStashes[backpack.metadata.bagId] then
         local bag = Config.Bags[backpack.name]
 
-        ox_inventory:RegisterStash(('backpack_'):format(backpack.metadata.bagId), 'Bag', bag.slots, bag.maxWeight)
+        ox_inventory:RegisterStash(('backpack_%s'):format(backpack.metadata.bagId), 'Bag', bag.slots, bag.maxWeight)
         existingStashes[backpack.metadata.bagId] = true
     end
 
-    TriggerClientEvent('ox_inventory:openInventory', inventory.id, 'stash', ('backpack_'):format(backpack.metadata.bagId))
+    TriggerClientEvent('ox_inventory:openInventory', inventory.id, 'stash', ('backpack_%s'):format(backpack.metadata.bagId))
 end
 exports('useBackpack', useBackpack)
 
@@ -31,18 +31,31 @@ AddEventHandler('onServerResourceStart', function(resourceName)
         backpacks[#backpacks + 1] = bag
         itemFilter[bag] = true
     end
+    for item, value in pairs(Config.BlacklistedItems) do
+        itemFilter[item] = value
+    end
 
     ox_inventory:registerHook('createItem', function(payload)
+        if not Config.Bags[payload.item.name] then return end
         local metadata = payload.metadata
-
-        local uniqueId = GetGameTimer() .. math.random(10000, 99999)
-        metadata.bagId = uniqueId
 
         if tonumber(payload.inventoryId) then
             Player(payload.inventoryId).state.carryBag = payload.item.name
         end
 
+        local uniqueId = GetGameTimer() .. math.random(10000, 99999)
+        metadata.bagId = uniqueId
+
         return metadata
+    end, {
+        itemFilter = itemFilter
+    })
+
+    ox_inventory:registerHook('buyItem', function(payload)
+        if not Config.Bags[payload.itemName] or Config.AllowMultipleBags then return true end
+
+        local bagCount = ox_inventory:Search(payload.toInventory, 'count', backpacks)
+        if bagCount > 0 then return false end
     end, {
         itemFilter = itemFilter
     })
@@ -63,10 +76,12 @@ AddEventHandler('onServerResourceStart', function(resourceName)
         end
 
         if payload.toType == 'player' then
-            local targetBagCount = ox_inventory:Search(targetSource, 'count', backpacks)
-            if not Config.AllowMultipleBags and targetBagCount > 0 then return false end
-
-            Player(targetSource).state.carryBag = payload.fromSlot.name
+            if Config.Bags[payload.fromSlot.name] then
+                local targetBagCount = ox_inventory:Search(targetSource, 'count', backpacks)
+                if not Config.AllowMultipleBags and targetBagCount > 0 then return false end
+    
+                Player(targetSource).state.carryBag = payload.fromSlot.name
+            end
         end
 
         return true

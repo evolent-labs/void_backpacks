@@ -16,4 +16,8 @@ Config.Bags = {
     }
 }
 
+Config.BlacklistedItems = {
+    -- money = true,
+}
+
 return Config

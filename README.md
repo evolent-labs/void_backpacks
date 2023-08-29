@@ -10,6 +10,7 @@
 ## Features
 * Add as many backpacks as you want
 * Option to disallow players to carry multiple bags at once
+* Add blacklisted items that can't be stored in backpacks
 * A bag will appear on you when carrying a backpack
 * Compatible with Ox Core, QBCore and ESX.
 
