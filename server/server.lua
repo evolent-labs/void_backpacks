@@ -35,13 +35,8 @@ AddEventHandler('onServerResourceStart', function(resourceName)
     ox_inventory:registerHook('createItem', function(payload)
         local metadata = payload.metadata
 
-        local uniqueId = GetGameTimer() .. math.random(1000, 9999)
+        local uniqueId = GetGameTimer() .. math.random(10000, 99999)
         metadata.bagId = uniqueId
-
-        local bag = Config.Bags[payload.item.name]
-
-        ox_inventory:RegisterStash(uniqueId, 'Bag', bag.slots, bag.maxWeight)
-        existingStashes[uniqueId] = true
 
         if tonumber(payload.inventoryId) then
             Player(payload.inventoryId).state.carryBag = payload.item.name
@@ -78,6 +73,11 @@ AddEventHandler('onServerResourceStart', function(resourceName)
     })
 end)
 
+AddEventHandler('onServerResourceStop', function(resourceName)
+    if resourceName ~= GetCurrentResourceName() then return end
+    ox_inventory:removeHooks()
+end)
+
 
 local framework = GetConvar('inventory:framework', 'ox')
 
@@ -104,11 +104,6 @@ if framework == 'ox' then
 end
 
 if framework == 'esx' then
-    RegisterNetEvent('ox:playerLoaded', initItemCheck)
+    RegisterNetEvent('esx:playerLoaded', initItemCheck)
     RegisterNetEvent('esx:playerDropped', resetState)
 end
-
-AddEventHandler('onServerResourceStop', function(resourceName)
-    if resourceName ~= GetCurrentResourceName() then return end
-    ox_inventory:removeHooks()
-end)
