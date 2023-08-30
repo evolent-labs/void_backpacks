@@ -113,8 +113,8 @@ end
 if framework == 'qb' then
     RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function()
         local _source = source
-        -- Wait 1 second because the ped reloads when spawning for some reason
-        SetTimeout(1000, function()
+        -- Wait 2 seconds because the ped reloads when spawning for some reason
+        SetTimeout(2000, function()
             initItemCheck(_source)
         end)
     end)
