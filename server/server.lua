@@ -111,7 +111,13 @@ local function resetState(source)
 end
 
 if framework == 'qb' then
-    RegisterNetEvent('QBCore:Server:OnPlayerLoaded', initItemCheck)
+    RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function()
+        local _source = source
+        -- Wait 1 second because the ped reloads when spawning for some reason
+        SetTimeout(1000, function()
+            initItemCheck(_source)
+        end)
+    end)
     RegisterNetEvent('QBCore:Server:OnPlayerUnload', resetState)
 end
 
