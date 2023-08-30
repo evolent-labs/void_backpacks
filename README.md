@@ -17,8 +17,8 @@
 ## Installation
 * Install all dependencies.
 * Download the latest release and add it to your resources
-* Add all needed items to ox_inventory
-* Add ensure `void_backpacks` to your server.cfg
+* Add all needed items from `data/items.lua` to `ox_inventory`
+* Add ensure `void_backpacks` to your `server.cfg`
 
 ## [Video Preview](https://streamable.com/t3xvos)
 ## [Discord](https://discord.gg/J6wYuXyZUf)
