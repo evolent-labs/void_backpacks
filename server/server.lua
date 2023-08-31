@@ -54,7 +54,7 @@ AddEventHandler('onServerResourceStart', function(resourceName)
 
     ox_inventory:registerHook('openInventory', function(payload)
         local backpack = ox_inventory:GetSlot(payload.source, payload.slot)
-        if not Config.Bags[backpack.name] then end
+        if not Config.Bags[backpack.name] then return end
 
         local progressCircle = lib.callback.await('openingBackpack', payload.source)
         if not progressCircle then return false end
