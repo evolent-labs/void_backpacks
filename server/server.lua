@@ -7,7 +7,7 @@ local function newBackpack(payload)
     if not Config.Bags[backpackName] then return end
 
     local playerId = payload.inventoryId or payload.toInventory
-    Player(payload.inventoryId or payload.toInventory).state.carryBag = backpackName
+    Player(playerId).state.carryBag = backpackName
 end
 
 local backpacks, itemFilter = {}, {}
