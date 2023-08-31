@@ -10,14 +10,8 @@ Config.Bags = {
             MaleTextureId = 0,
             FemaleDrawableId = 82,
             FemaleTextureId = 0,
-        },
-        slots = 20,
-        maxWeight = 50000
+        }
     }
-}
-
-Config.BlacklistedItems = {
-    -- money = true,
 }
 
 return Config

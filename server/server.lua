@@ -1,27 +1,14 @@
 local Config = require 'config'
-local existingStashes = {}
 
 local ox_inventory = exports.ox_inventory
 
-local function useBackpack(event, _, inventory, slot, _)
-    if event ~= 'usingItem' then return end
+local function newBackpack(payload)
+    local backpackName = payload.item?.name or payload.itemName or payload.fromSlot?.name or 'none'
+    if not Config.Bags[backpackName] then return end
 
-    local progressBar = lib.callback.await('openingBackpack', inventory.id)
-    if not progressBar then return end
-
-    local backpack = ox_inventory:GetSlot(inventory.id, slot)
-    if not backpack.metadata.bagId then return end
-
-    if not existingStashes[backpack.metadata.bagId] then
-        local bag = Config.Bags[backpack.name]
-
-        ox_inventory:RegisterStash(('backpack_%s'):format(backpack.metadata.bagId), 'Bag', bag.slots, bag.maxWeight)
-        existingStashes[backpack.metadata.bagId] = true
-    end
-
-    TriggerClientEvent('ox_inventory:openInventory', inventory.id, 'stash', ('backpack_%s'):format(backpack.metadata.bagId))
+    local playerId = payload.inventoryId or payload.toInventory
+    Player(payload.inventoryId or payload.toInventory).state.carryBag = backpackName
 end
-exports('useBackpack', useBackpack)
 
 local backpacks, itemFilter = {}, {}
 AddEventHandler('onServerResourceStart', function(resourceName)
@@ -31,23 +18,8 @@ AddEventHandler('onServerResourceStart', function(resourceName)
         backpacks[#backpacks + 1] = bag
         itemFilter[bag] = true
     end
-    for item, value in pairs(Config.BlacklistedItems) do
-        itemFilter[item] = value
-    end
 
-    ox_inventory:registerHook('createItem', function(payload)
-        if not Config.Bags[payload.item.name] then return end
-        local metadata = payload.metadata
-
-        if tonumber(payload.inventoryId) then
-            Player(payload.inventoryId).state.carryBag = payload.item.name
-        end
-
-        local uniqueId = GetGameTimer() .. math.random(10000, 99999)
-        metadata.bagId = uniqueId
-
-        return metadata
-    end, {
+    ox_inventory:registerHook('createItem', newBackpack, {
         itemFilter = itemFilter
     })
 
@@ -55,38 +27,43 @@ AddEventHandler('onServerResourceStart', function(resourceName)
         if not Config.Bags[payload.itemName] or Config.AllowMultipleBags then return true end
 
         local bagCount = ox_inventory:Search(payload.toInventory, 'count', backpacks)
-        if bagCount > 0 then return false end
+        if bagCount > 0 then return false end    
     end, {
         itemFilter = itemFilter
     })
 
     ox_inventory:registerHook('swapItems', function(payload)
-        local source = payload.fromInventory
-        local targetSource = payload.toInventory
-
-        if source == targetSource then return true end
-
-        if payload.action ~= 'move' then return end
+        if payload.fromInventory == payload.toInventory then return true end
 
         if payload.fromType == 'player' then
-            if string.find(payload.toInventory, 'backpack_') then return false end
-
-            local bagCount = ox_inventory:Search(source, 'count', backpacks) - 1
-            if bagCount < 1 then Player(source).state.carryBag = false end
+            local bagCount = ox_inventory:Search(payload.fromInventory, 'count', backpacks) - 1
+            if bagCount < 1 then Player(payload.fromInventory).state.carryBag = false end
         end
 
         if payload.toType == 'player' then
-            if Config.Bags[payload.fromSlot.name] then
-                local targetBagCount = ox_inventory:Search(targetSource, 'count', backpacks)
-                if not Config.AllowMultipleBags and targetBagCount > 0 then return false end
-    
-                Player(targetSource).state.carryBag = payload.fromSlot.name
-            end
+            local bagCount = ox_inventory:Search(payload.toInventory, 'count', backpacks)
+            if not Config.AllowMultipleBags and bagCount > 0 then return false end
+
+            newBackpack(payload)
         end
 
         return true
     end, {
         itemFilter = itemFilter
+    })
+
+    ox_inventory:registerHook('openInventory', function(payload)
+        local backpack = ox_inventory:GetSlot(payload.source, payload.slot)
+        if not Config.Bags[backpack.name] then end
+
+        local progressCircle = lib.callback.await('openingBackpack', payload.source)
+        if not progressCircle then return false end
+
+        return true
+    end, {
+        typeFilter = {
+            container = true
+        }
     })
 end)
 

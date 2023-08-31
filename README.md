@@ -17,7 +17,8 @@
 ## Installation
 * Install all dependencies.
 * Download the latest release and add it to your resources
-* Add all needed items from `data/items.lua` to `ox_inventory`
+* Add the items from `data/items.lua` to `ox_inventory/data/items.lua`
+* Add the container properties from `data/containers.lua` to `ox_inventory/modules/items/containers.lua`
 * Add ensure `void_backpacks` to your `server.cfg`
 
 ## [Video Preview](https://streamable.com/t3xvos)
