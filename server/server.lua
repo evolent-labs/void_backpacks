@@ -10,6 +10,19 @@ local function newBackpack(payload)
     Player(playerId).state.carryBag = backpackName
 end
 
+local function getBackpackCount(data)
+    local count = 0
+    if type(data) == 'table' then
+        for _, amount in pairs(data) do
+            count += amount
+        end
+    else
+        count = data
+    end
+
+    return count
+end
+
 local backpacks, itemFilter = {}, {}
 AddEventHandler('onServerResourceStart', function(resourceName)
     if resourceName ~= GetCurrentResourceName() then return end
@@ -26,8 +39,8 @@ AddEventHandler('onServerResourceStart', function(resourceName)
     ox_inventory:registerHook('buyItem', function(payload)
         if not Config.Bags[payload.itemName] or Config.AllowMultipleBags then return true end
 
-        local bagCount = ox_inventory:Search(payload.toInventory, 'count', backpacks)
-        if bagCount > 0 then return false end    
+        local bags = ox_inventory:Search(payload.toInventory, 'count', backpacks)
+        if getBackpackCount(bags) > 0 then return false end    
     end, {
         itemFilter = itemFilter
     })
@@ -36,13 +49,13 @@ AddEventHandler('onServerResourceStart', function(resourceName)
         if payload.fromInventory == payload.toInventory then return true end
 
         if payload.fromType == 'player' then
-            local bagCount = ox_inventory:Search(payload.fromInventory, 'count', backpacks) - 1
-            if bagCount < 1 then Player(payload.fromInventory).state.carryBag = false end
+            local bags = ox_inventory:Search(payload.fromInventory, 'count', backpacks)
+            if getBackpackCount(bags) - 1 < 1 then Player(payload.fromInventory).state.carryBag = false end
         end
 
         if payload.toType == 'player' then
-            local bagCount = ox_inventory:Search(payload.toInventory, 'count', backpacks)
-            if not Config.AllowMultipleBags and bagCount > 0 then return false end
+            local bags = ox_inventory:Search(payload.toInventory, 'count', backpacks)
+            if not Config.AllowMultipleBags and getBackpackCount(bags) > 0 then return false end
 
             newBackpack(payload)
         end
