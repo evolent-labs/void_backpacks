@@ -12,11 +12,11 @@ lib.callback.register('openingBackpack', progressCircle)
 
 local currentBag
 AddStateBagChangeHandler('carryBag', ('player:%s'):format(cache.serverId), function(_, _, value)
-    if not value then
+    currentBag = value == 'inveh' and currentBag or value
+
+    if not value or value == 'inveh' then
         return SetPedComponentVariation(cache.ped, 5, 0, 0, 0)
     end
-
-    currentBag = value
 
     local bagInfo = Config.Bags[value]
     if not bagInfo then return end
@@ -31,6 +31,6 @@ AddStateBagChangeHandler('carryBag', ('player:%s'):format(cache.serverId), funct
 end)
 
 lib.onCache('vehicle', function(veh)
-    if veh then LocalPlayer.state.carryBag = false end
+    if veh then LocalPlayer.state.carryBag = 'inveh' end
     if not veh then LocalPlayer.state.carryBag = currentBag end
 end)
