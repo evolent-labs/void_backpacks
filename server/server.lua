@@ -92,6 +92,7 @@ local function initItemCheck(source)
     if not source then return end
 
     local bags = ox_inventory:Search(source, 'slots', backpacks)
+    if not bags then return end
     Player(source).state.carryBag = bags[1]?.name or false
 end
 
