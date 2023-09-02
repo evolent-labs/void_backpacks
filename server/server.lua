@@ -117,6 +117,10 @@ if framework == 'ox' then
 end
 
 if framework == 'esx' then
-    RegisterNetEvent('esx:playerLoaded', initItemCheck)
-    RegisterNetEvent('esx:playerDropped', resetState)
+    RegisterNetEvent('esx:playerLoaded', function(playerId)
+        initItemCheck(playerId)
+    end)
+    RegisterNetEvent('esx:playerDropped', function(playerId)
+        resetState(playerId)
+    end)
 end
