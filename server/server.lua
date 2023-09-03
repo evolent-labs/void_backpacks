@@ -91,9 +91,12 @@ local framework = GetConvar('inventory:framework', 'ox')
 local function initItemCheck(source)
     if not source then return end
 
-    local bags = ox_inventory:Search(source, 'slots', backpacks)
-    if not bags then return end
-    Player(source).state.carryBag = bags[1]?.name or false
+    -- Wait 2 seconds for the ped or inventory to load
+    SetTimeout(2000, function()
+        local bags = ox_inventory:Search(source, 'slots', backpacks)
+        if not bags then return end
+        Player(source).state.carryBag = bags[1]?.name or false
+    end)
 end
 
 local function resetState(source)
@@ -102,13 +105,7 @@ local function resetState(source)
 end
 
 if framework == 'qb' then
-    RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function()
-        local _source = source
-        -- Wait 2 seconds because the ped reloads when spawning for some reason
-        SetTimeout(2000, function()
-            initItemCheck(_source)
-        end)
-    end)
+    RegisterNetEvent('QBCore:Server:OnPlayerLoaded', initItemCheck)
     RegisterNetEvent('QBCore:Server:OnPlayerUnload', resetState)
 end
 
