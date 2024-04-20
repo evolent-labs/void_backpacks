@@ -20,13 +20,14 @@ AddStateBagChangeHandler('carryBag', ('player:%s'):format(cache.serverId), funct
 
     local bagInfo = Config.Bags[value]
     if not bagInfo then return end
-
-    local gender = IsPedModel(cache.ped, 'mp_f_freemode_01') and 'female' or 'male'
-
-    if gender == 'male' then
-        SetPedComponentVariation(cache.ped, 5, bagInfo.clothing.MaleDrawableId, bagInfo.clothing.MaleTextureId, 0)
-    else
-        SetPedComponentVariation(cache.ped, 5, bagInfo.clothing.FemaleDrawableId, bagInfo.clothing.FemaleTextureId, 0)
+    if bagInfo.clothing then
+        local gender = IsPedModel(cache.ped, 'mp_f_freemode_01') and 'female' or 'male'
+    
+        if gender == 'male' then
+            SetPedComponentVariation(cache.ped, 5, bagInfo.clothing.MaleDrawableId, bagInfo.clothing.MaleTextureId, 0)
+        else
+            SetPedComponentVariation(cache.ped, 5, bagInfo.clothing.FemaleDrawableId, bagInfo.clothing.FemaleTextureId, 0)
+        end
     end
 end)
 
